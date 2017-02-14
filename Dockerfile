@@ -7,6 +7,7 @@ RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   boost-devel \
   cmake \
   doxygen \
+  fontconfig-devel \
   gcc-c++ \
   git \
   gtk3-devel \
@@ -16,9 +17,14 @@ RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   libzypp-devel \
   obs-service-source_validator \
   pkg-config \
+  'pkgconfig(Qt5Core)' \
+  'pkgconfig(Qt5Gui)' \
+  'pkgconfig(Qt5Svg)' \
+  'pkgconfig(Qt5Widgets)' \
+  'pkgconfig(Qt5X11Extras)'
+  'rubygem(libyui-rake)' \
   rpm-build \
   ruby \
-  'rubygem(libyui-rake)' \
   which \
   && zypper clean -a
 
