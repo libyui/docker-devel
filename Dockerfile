@@ -21,7 +21,7 @@ RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   'pkgconfig(Qt5Gui)' \
   'pkgconfig(Qt5Svg)' \
   'pkgconfig(Qt5Widgets)' \
-  'pkgconfig(Qt5X11Extras)'
+  'pkgconfig(Qt5X11Extras)' \
   'rubygem(libyui-rake)' \
   rpm-build \
   ruby \
