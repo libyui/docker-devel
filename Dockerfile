@@ -43,4 +43,4 @@ COPY libyui-travis /usr/local/bin
 
 # run some smoke tests to make sure there is no serious issue with the image
 RUN c++ --version
-RUN rake -r yast/rake -V
+RUN rake -r libyui/rake -V
