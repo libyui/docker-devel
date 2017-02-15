@@ -11,7 +11,7 @@ RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/librarie
 RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   ruby && zypper clean -a
 
-RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` \
+RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
   zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   boost-devel \
   cmake \
