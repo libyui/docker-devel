@@ -46,5 +46,5 @@ RUN c++ --version
 
 # this is a bit tricky as the libyui/rake loads some files at the initialization
 RUN mkdir -p package && echo > package/test.spec && \
-  echo -e 'SET(VERSION_MAJOR "42")\nSET(VERSION_MINOR "42")\nSET(VERSION_PATCH "42")' && \
+  echo -e 'SET(VERSION_MAJOR "42")\nSET(VERSION_MINOR "42")\nSET(VERSION_PATCH "42")' \
   > VERSION.cmake && rake -t -r libyui/rake -V && rm -rf package && rm VERSION.cmake
