@@ -4,6 +4,9 @@ FROM opensuse:tumbleweed
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
 RUN zypper mr -d non-oss
 
+# add the YaST repository - we need the Rubocop gem for libyui/libyui-rake
+RUN zypper ar -f http://download.opensuse.org/repositories/YaST:/Head/openSUSE_Tumbleweed/ yast
+
 # prefer the packages from the libyui devel project
 RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/libraries:/libyui/openSUSE_Tumbleweed/ libyui
 
@@ -36,9 +39,12 @@ RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
   'pkgconfig(Qt5Widgets)' \
   'pkgconfig(Qt5X11Extras)' \
   "rubygem($RUBY_VERSION:libyui-rake)" \
+  "rubygem($RUBY_VERSION:rubocop)" \
   rpm-build \
+  yast2-devtools \
   which \
-  && zypper clean -a
+  && zypper clean -a \
+  && rm -rf /usr/lib64/ruby/gems/*/cache
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
