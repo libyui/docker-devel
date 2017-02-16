@@ -21,6 +21,7 @@ RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
   git \
   gtk3-devel \
   libyui-devel \
+  libyui-gtk-devel \
   libyui-ncurses-devel \
   libyui-qt-devel \
   libzypp-devel \
