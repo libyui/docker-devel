@@ -4,6 +4,11 @@ FROM opensuse:tumbleweed
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
 RUN zypper mr -d non-oss
 
+# "zypper dup" synchronizes with the current Tumbleweed (even downgrades if needed)
+# to avoid possible dependency issues as the TW Docker image is updated less frequently
+RUN zypper --gpg-auto-import-keys --non-interactive dup --no-recommends \
+  && zypper clean -a
+
 # add the YaST repository - we need the Rubocop gem for libyui/libyui-rake
 RUN zypper ar -f http://download.opensuse.org/repositories/YaST:/Head/openSUSE_Tumbleweed/ yast
 

@@ -7,6 +7,15 @@ for running the CI tests at [Travis](https://travis-ci.org/).
 The built image is available at the [libyui/devel](
 https://hub.docker.com/r/libyui/devel) Docker repository.
 
+## Docker Tags
+
+This repository builds several versions of the image which are published
+by the Docker Hub with a different tag.
+
+The images are defined in the `Dockerfile.<tag>` files and published as
+`libyui/devel:<tag>` at the Docker Hub. See the complete [list of tags](
+https://hub.docker.com/r/libyui/devel/tags/) at the Docker Hub.
+
 ## Automatic Rebuilds
 
 - The image is rebuilt whenever a commit it pushed to the `master` branch.
@@ -30,7 +39,7 @@ a broken build you can trigger rebuild manually.
 
 - Go to the [Build Settings](
 https://hub.docker.com/r/libyui/devel/~/settings/automated-builds/) tab
-and press the *Trigger* button next to the *master* branch configuration line.
+and press the *Trigger* button for the required Docker image.
 
 - If you need to trigger the build from a script check the *Build Triggers*
 section at the bottom, press the *Show examples* link to display the `curl`
@@ -39,12 +48,12 @@ do not put it in a publicly visible place.)
 
 ## The Image Content
 
-This image is based on the latest openSUSE Tumbleweed image, additionally
-it contains the packages needed for building the libyui packages.
+The images contain all development packages needed for building the libyui
+packages.
 
 ## Using the image
 
-The image contains an `libyui-travis` script which runs all the checks and tests.
+The images contain an `libyui-travis` script which runs all the checks and tests.
 
 The workflow is:
 
