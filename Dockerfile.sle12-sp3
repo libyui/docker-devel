@@ -1,0 +1,69 @@
+# SLE12-SP3 is officially not available at the Docker Hub
+# because of some licensing issues, use openSUSE-42.3 as a replacement.
+# It shares the same core packages and should be close enough to SLE12-SP3
+# for running the libyui builds.
+# FIXME: for now use the TW base, 42.3 (beta) has not been published yet,
+# after releasing 42.3 update this line to:
+# FROM opensuse:42.3
+FROM opensuse:tumbleweed
+
+# the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
+RUN zypper mr -d non-oss
+
+# Reuse the YaST SP3 repository, we do not want to maintain extra devel:libraries:libyui:SLE-12:SP3
+# subproject.
+#
+# Set a higher priority for the sle_12_sp3 repo to prefer the packages from
+# this repo even if they have a lower version than the original 42.3 packages.
+# FIXME: use the TW build target for now, later switch to:
+# RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/SP3/SLE_12_SP3/ \
+RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/SP3/openSUSE_Tumbleweed/ \
+  sle12_sp3
+
+# we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
+# see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
+# why we need "zypper clean -a" at the end
+RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
+  ruby && zypper clean -a
+
+RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
+  zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
+  boost-devel \
+  cmake \
+  doxygen \
+  fontconfig-devel \
+  gcc-c++ \
+  git \
+  gtk3-devel \
+  libyui-devel \
+  libyui-ncurses-devel \
+  libyui-qt-devel \
+  libzypp-devel \
+  obs-service-source_validator \
+  pkg-config \
+  'pkgconfig(Qt5Core)' \
+  'pkgconfig(Qt5Gui)' \
+  'pkgconfig(Qt5Svg)' \
+  'pkgconfig(Qt5Widgets)' \
+  'pkgconfig(Qt5X11Extras)' \
+  "rubygem($RUBY_VERSION:libyui-rake)" \
+  "rubygem($RUBY_VERSION:rubocop)" \
+  rpm-build \
+  yast2-devtools \
+  which \
+  && zypper clean -a \
+  && rm -rf /usr/lib64/ruby/gems/*/cache
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY libyui-travis /usr/local/bin
+
+# run some smoke tests to make sure there is no serious issue with the image
+RUN c++ --version
+
+# this is a bit tricky as the libyui/rake loads some files at the initialization
+RUN mkdir -p package && echo > package/test.spec && \
+  echo -e 'SET(VERSION_MAJOR "42")\nSET(VERSION_MINOR "42")\nSET(VERSION_PATCH "42")' \
+  > VERSION.cmake && rake -t -r libyui/rake -V && rm -rf package && rm VERSION.cmake
