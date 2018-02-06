@@ -2,30 +2,29 @@
 # because of some licensing issues, use openSUSE-42.3 as a replacement.
 # It shares the same core packages and should be close enough to SLE12-SP3
 # for running the libyui builds.
-# FIXME: for now use the TW base, 42.3 (beta) has not been published yet,
-# after releasing 42.3 update this line to:
-# FROM opensuse:42.3
-FROM opensuse:tumbleweed
+FROM opensuse:42.3
 
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
-RUN zypper mr -d non-oss
+RUN zypper mr -d "NON OSS"
+
+# we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
+# see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
+# why we need "zypper clean -a" at the end
+# "curl" is needed for importing the GPG key by "rpm" command
+RUN zypper --non-interactive in --no-recommends \
+  curl ruby && zypper clean -a
 
 # Reuse the YaST SP3 repository, we do not want to maintain extra devel:libraries:libyui:SLE-12:SP3
 # subproject.
 #
 # Set a higher priority for the sle_12_sp3 repo to prefer the packages from
 # this repo even if they have a lower version than the original 42.3 packages.
-# FIXME: use the TW build target for now, later switch to:
-# RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/SP3/SLE_12_SP3/ \
-RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/SP3/openSUSE_Tumbleweed/ \
+RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/SP3/SLE_12_SP3/ \
   sle12_sp3
 
-# we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
-# see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
-# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
-# why we need "zypper clean -a" at the end
-RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
-  ruby && zypper clean -a
+# import the YaST OBS GPG key
+RUN rpm --import https://build.opensuse.org/projects/YaST:SLE-12:SP3/public_key
 
 RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
   zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
