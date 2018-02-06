@@ -2,7 +2,7 @@
 FROM opensuse:tumbleweed
 
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
-RUN zypper mr -d non-oss
+RUN zypper mr -d "NON OSS"
 
 # "zypper dup" synchronizes with the current Tumbleweed (even downgrades if needed)
 # to avoid possible dependency issues as the TW Docker image is updated less frequently
@@ -22,7 +22,7 @@ RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/librarie
 RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   ruby && zypper clean -a
 
-RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
+RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   boost-devel \
   cmake \
