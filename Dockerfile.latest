@@ -1,5 +1,5 @@
 # Build the latest openSUSE Tumbleweed image
-FROM opensuse:tumbleweed
+FROM opensuse/tumbleweed
 
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
 RUN zypper mr -d "NON OSS"
