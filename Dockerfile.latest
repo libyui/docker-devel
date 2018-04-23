@@ -2,13 +2,17 @@
 FROM opensuse/tumbleweed
 
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
-RUN zypper mr -d "NON OSS"
+RUN zypper mr -d repo-non-oss
 
 # "zypper dup" synchronizes with the current Tumbleweed (even downgrades if needed)
 # to avoid possible dependency issues as the TW Docker image is updated less frequently,
 # "curl" is needed for importing the GPG key by "rpm" command
+# we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
+# see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
+# why we need "zypper clean -a" at the end
 RUN zypper --non-interactive dup --no-recommends \
-  && zypper --non-interactive in --no-recommends curl && zypper clean -a
+  && zypper --non-interactive in --no-recommends curl ruby && zypper clean -a
 
 # add the YaST repository - we need the Rubocop gem for libyui/libyui-rake
 RUN zypper ar -f http://download.opensuse.org/repositories/YaST:/Head/openSUSE_Tumbleweed/ yast
@@ -21,13 +25,6 @@ RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/librarie
 
 # import the libyui OBS GPG key
 RUN rpm --import https://build.opensuse.org/projects/devel:libraries:libyui/public_key
-
-# we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
-# see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
-# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
-# why we need "zypper clean -a" at the end
-RUN zypper --non-interactive in --no-recommends \
-  ruby && zypper clean -a
 
 RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
