@@ -38,6 +38,7 @@ RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   gcc-c++ \
   git \
   gtk3-devel \
+  lcov \
   libyui-devel \
   libyui-gtk-devel \
   libyui-ncurses-devel \
@@ -50,6 +51,7 @@ RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   'pkgconfig(Qt5Svg)' \
   'pkgconfig(Qt5Widgets)' \
   'pkgconfig(Qt5X11Extras)' \
+  "rubygem($RUBY_VERSION:coveralls-lcov)" \
   "rubygem($RUBY_VERSION:libyui-rake)" \
   "rubygem($RUBY_VERSION:rubocop)" \
   rpm-build \
