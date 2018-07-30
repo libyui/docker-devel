@@ -1,6 +1,9 @@
 # Build the latest openSUSE Tumbleweed image
 FROM opensuse/leap:15.0
 
+# ensure the UTF-8 locales are set
+ENV LC_ALL=en_US.UTF-8
+
 # do not install the files marked as documentation (use "rpm --excludedocs")
 RUN sed -i -e "s/^.*rpm.install.excludedocs.*/rpm.install.excludedocs = yes/" /etc/zypp/zypp.conf
 
