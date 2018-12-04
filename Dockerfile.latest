@@ -35,6 +35,8 @@ RUN rpm --import https://build.opensuse.org/projects/devel:libraries:libyui/publ
 RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
   boost-devel \
+  brp-check-suse \
+  brp-extract-appdata \
   cmake \
   doxygen \
   fontconfig-devel \
