@@ -1,5 +1,9 @@
-# Build the latest openSUSE Tumbleweed image
-FROM opensuse/tumbleweed
+# SLE12-SP5 is officially not available at the Docker Hub
+# because of some licensing issues, use openSUSE-42.3 as a replacement
+# as there is no openSUSE-42.5 release which would be the equivalent to SLES12-SP5.
+# It shares the same core packages and should be close enough to SLE12-SP5
+# for running the libyui builds.
+FROM opensuse/leap:42.3
 
 # ensure the UTF-8 locales are set
 ENV LC_ALL=en_US.UTF-8
@@ -8,44 +12,37 @@ ENV LC_ALL=en_US.UTF-8
 RUN sed -i -e "s/^.*rpm.install.excludedocs.*/rpm.install.excludedocs = yes/" /etc/zypp/zypp.conf
 
 # the NON-OSS repo is not needed, save the network bandwidth and some time (~5 seconds) for each refresh
-RUN zypper mr -d repo-non-oss
+RUN zypper mr -d "NON OSS"
 
-# "zypper dup" synchronizes with the current Tumbleweed (even downgrades if needed)
-# to avoid possible dependency issues as the TW Docker image is updated less frequently,
-# "curl" is needed for importing the GPG key by "rpm" command
 # we need to install Ruby first to define the %{rb_default_ruby_abi} RPM macro
 # see https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
 # https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/build-cache
 # why we need "zypper clean -a" at the end
-RUN zypper --non-interactive dup --no-recommends \
-  && zypper --non-interactive in --no-recommends curl ruby && zypper clean -a
+# "curl" is needed for importing the GPG key by "rpm" command
+RUN zypper --non-interactive in --no-recommends \
+  curl ruby && zypper clean -a
 
-# add the YaST repository - we need the Rubocop gem for libyui/libyui-rake
-RUN zypper ar -f http://download.opensuse.org/repositories/YaST:/Head/openSUSE_Tumbleweed/ yast
+# Reuse the YaST SP5 repository, we do not want to maintain extra devel:libraries:libyui:SLE-12:SP5
+# subproject.
+#
+# Set a higher priority for the sle_12_sp5 repo to prefer the packages from
+# this repo even if they have a lower version than the original 42.3 packages.
+RUN zypper ar -f -p 95 https://download.opensuse.org/repositories/YaST:/SLE-12:/SP5/openSUSE_Leap_42.3/ \
+  sle12_sp5
 
 # import the YaST OBS GPG key
 RUN rpm --import https://build.opensuse.org/projects/YaST/public_key
 
-# prefer the packages from the libyui devel project
-RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/libraries:/libyui/openSUSE_Tumbleweed/ libyui
-
-# import the libyui OBS GPG key
-RUN rpm --import https://build.opensuse.org/projects/devel:libraries:libyui/public_key
-
-RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
+RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
   zypper --non-interactive in --no-recommends \
   boost-devel \
-  brp-check-suse \
-  brp-extract-appdata \
   cmake \
   doxygen \
   fontconfig-devel \
   gcc-c++ \
   git \
   gtk3-devel \
-  lcov \
   libyui-devel \
-  libyui-gtk-devel \
   libyui-ncurses-devel \
   libyui-qt-devel \
   libzypp-devel \
@@ -56,7 +53,6 @@ RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   'pkgconfig(Qt5Svg)' \
   'pkgconfig(Qt5Widgets)' \
   'pkgconfig(Qt5X11Extras)' \
-  "rubygem($RUBY_VERSION:coveralls-lcov)" \
   "rubygem($RUBY_VERSION:libyui-rake)" \
   "rubygem($RUBY_VERSION:rubocop)" \
   rpm-build \

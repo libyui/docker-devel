@@ -2,7 +2,7 @@
 # because of some licensing issues, use openSUSE-42.3 as a replacement.
 # It shares the same core packages and should be close enough to SLE12-SP3
 # for running the libyui builds.
-FROM opensuse:42.3
+FROM opensuse/leap:42.3
 
 # ensure the UTF-8 locales are set
 ENV LC_ALL=en_US.UTF-8
@@ -33,7 +33,7 @@ RUN zypper ar -f -p 95 http://download.opensuse.org/repositories/YaST:/SLE-12:/S
 RUN rpm --import https://build.opensuse.org/projects/YaST:SLE-12:SP3/public_key
 
 RUN RUBY_VERSION=`rpm --eval '%{rb_default_ruby_abi}'` && \
-  zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
+  zypper --non-interactive in --no-recommends \
   boost-devel \
   cmake \
   doxygen \
