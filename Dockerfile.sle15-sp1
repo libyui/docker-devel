@@ -26,12 +26,6 @@ RUN zypper ar -f -p 95 https://download.opensuse.org/repositories/YaST:/SLE-15:/
 # import the YaST OBS GPG key
 RUN rpm --import https://build.opensuse.org/projects/YaST/public_key
 
-# prefer the packages from the libyui devel project
-RUN zypper ar -f -p 50 http://download.opensuse.org/repositories/devel:/libraries:/libyui/openSUSE_Leap_15.1/ libyui
-
-# import the libyui OBS GPG key
-RUN rpm --import https://build.opensuse.org/projects/devel:libraries:libyui/public_key
-
 RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   zypper --non-interactive in --no-recommends \
   boost-devel \
@@ -40,9 +34,7 @@ RUN RUBY_VERSION=ruby:`rpm --eval '%{rb_ver}'` && \
   fontconfig-devel \
   gcc-c++ \
   git \
-  gtk3-devel \
   libyui-devel \
-  libyui-gtk-devel \
   libyui-ncurses-devel \
   libyui-qt-devel \
   libzypp-devel \
